@@ -1,0 +1,3 @@
+This research paper examines how globalization has weakened the traditional Phillips Curve relationship between inflation and unemployment. 
+By analyzing data from India and the U.S. before and after globalization, the study finds that increased global integration—through outsourcing, trade, and reduced worker bargaining power—has flattened the curve, making inflation less responsive to domestic unemployment. 
+This shift grants policymakers more flexibility to stimulate job growth without causing sharp price rises. The effect is stronger in advanced economies like the U.S. due to deeper global ties, while India's curve also flattened but retained some residual link between the two variables.
