@@ -1,0 +1,188 @@
+
+
+```{r}
+
+library(readxl)
+
+# --- 1. Load the Data ---
+Pre_Globalisation<- read_excel("Inflation.xlsx")
+
+```
+
+
+```{r}
+
+plot(Pre_Globalisation$Year,Pre_Globalisation$Inflation_India,type = "o",main = "Time series graph of Inflation", col="blue", pch=20)
+
+```
+
+```{r}
+
+# Load the ggplot2 library
+library(ggplot2)
+
+Philips_India_Pre <- lm(log(Pre_Globalisation$Inflation_India)~ Pre_Globalisation$Unemployment_India)
+summary(Philips_India_Pre)
+
+
+# Plotting for India with log inflation on Y-axis
+ggplot(Pre_Globalisation, aes(x = Unemployment_India, y = log(Inflation_India))) +
+  geom_point(color = "darkblue", size = 3) + # Add scatter points
+  geom_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed") + # Add linear regression line
+  labs(
+    title = "Phillips Curve for India (Pre-Globalisation)",
+    x = "Unemployment Rate (%)",
+    y = "Log of Inflation Rate"
+  ) +
+  theme_minimal() + # Use a clean theme
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+```
+```{r}
+
+Philips_USA_Pre <- lm(log(Pre_Globalisation$Inflation_USA)~ Pre_Globalisation$Unemployment_USA)
+
+summary(Philips_USA_Pre)
+
+
+# Plotting for USA with log inflation on Y-axis
+ggplot(Pre_Globalisation, aes(x = Unemployment_USA, y = log(Inflation_USA))) +
+  geom_point(color = "darkred", size = 3) + # Add scatter points
+  geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") + # Add linear regression line
+  labs(
+    title = "Phillips Curve for USA (Pre-Globalisation)",
+    x = "Unemployment Rate (%)",
+    y = "Log of Inflation Rate"
+  ) +
+  theme_minimal() + # Use a clean theme
+  theme(plot.title = element_text(hjust = 0.5)) # Center the title
+
+```
+```{r}
+
+library(readxl)
+
+# --- 1. Load the Data ---
+Post_Globalisation<- read_excel("Unemployment.xlsx")
+
+```
+
+```{r}
+
+# Model for India with log inflation (Post-Globalisation)
+Philips_India_Post <- lm( log(Post_Globalisation$Inflation_India) ~ Post_Globalisation$Unemployment_India )
+
+# Get a summary of the model
+summary(Philips_India_Post)
+
+# Load the ggplot2 library
+library(ggplot2)
+
+# Plotting for India with log inflation on Y-axis (Post-Globalisation)
+ggplot(Post_Globalisation, aes(x = Unemployment_India, y = log(Inflation_India))) +
+  geom_point(color = "darkblue", size = 3) + # Add scatter points
+  geom_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed") + # Add linear regression line
+  labs(
+    title = "Phillips Curve for India (Post-Globalisation)",
+    x = "Unemployment Rate (%)",
+    y = "Log of Inflation Rate"
+  ) +
+  theme_minimal() + # Use a clean theme
+  theme(plot.title = element_text(hjust = 0.5)) # Center the title
+
+```
+
+```{r}
+# Model for USA with log inflation (Post-Globalisation)
+Philips_USA_Post <- lm( log(Post_Globalisation$Inflation_USA) ~ Post_Globalisation$Unemployment_USA )
+
+# Get a summary of the model
+summary(Philips_USA_Post)
+
+# Load the ggplot2 library (if not already loaded)
+library(ggplot2)
+
+ggplot(Post_Globalisation, aes(x = Unemployment_USA, y = log(Inflation_USA))) +
+  geom_point(color = "darkred", size = 3, alpha = 0.7) + # Add scatter points with some transparency
+  geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed", linewidth = 1) + # Add linear regression line
+  labs(
+    title = "Phillips Curve for USA (Post-Globalisation) - Log Inflation",
+    x = "Unemployment Rate (USA, %)",
+    y = "Log of Inflation Rate (USA)"
+  ) +
+  theme_minimal() + # Use a clean theme
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"), # Center and bold title
+    axis.title = element_text(size = 10) # Adjust axis title font size
+  )
+
+```
+
+```{r}
+# Load necessary libraries (if not already loaded)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+# Load necessary libraries (if not already loaded)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+# --- Plotting Function ---
+# Define a function to easily generate plots for each country and period
+plot_time_series <- function(data_df, country_name, period_name) {
+  # Select relevant columns for the specific country and pivot to long format
+  if (country_name == "India") {
+    data_long <- data_df %>%
+      select(Year, Inflation_India, Unemployment_India) %>%
+      pivot_longer(
+        cols = c(Inflation_India, Unemployment_India),
+        names_to = "Variable",
+        values_to = "Value"
+      ) %>%
+      mutate(Variable = recode(Variable,
+                               "Inflation_India" = "Inflation",
+                               "Unemployment_India" = "Unemployment"))
+  } else if (country_name == "USA") {
+    data_long <- data_df %>%
+      select(Year, Inflation_USA, Unemployment_USA) %>%
+      pivot_longer(
+        cols = c(Inflation_USA, Unemployment_USA), # This line needs to be clean
+        names_to = "Variable",
+        values_to = "Value"
+      ) %>%
+      mutate(Variable = recode(Variable,
+                               "Inflation_USA" = "Inflation",
+                               "Unemployment_USA" = "Unemployment")) # And ensure this is clean too
+  } else {
+    stop("Invalid country_name. Must be 'India' or 'USA'.")
+  }
+
+  ggplot(data_long, aes(x = Year, y = Value, color = Variable, group = Variable)) +
+    geom_line(linewidth = 1) +
+    geom_point(size = 2) +
+    labs(
+      title = paste("Inflation and Unemployment in", country_name, "(", period_name, ")"),
+      x = "Year",
+      y = "Rate (%)",
+      color = "Key"
+    ) +
+    scale_color_manual(values = c("Inflation" = "deeppink4", "Unemployment" = "chocolate1")) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(hjust = 0.5, face = "bold"),
+      axis.text.x = element_text(angle = 45, hjust = 1)
+    )
+}
+
+# --- Generate Plots ---
+
+# Pre-Globalisation Plots (1980-1990)
+plot_time_series(Pre_Globalisation, "India", "Pre-Globalisation: 1980-1990")
+plot_time_series(Pre_Globalisation, "USA", "Pre-Globalisation: 1980-1990")
+
+# Post-Globalisation Plots (1991-2021)
+plot_time_series(Post_Globalisation, "India", "Post-Globalisation: 1991-2023")
+plot_time_series(Post_Globalisation, "USA", "Post-Globalisation: 1991-2023")
+```
+
